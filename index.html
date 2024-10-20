@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Code Editor with CodeMirror</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/codemirror.min.css">
+  <style>
+    .CodeMirror {
+      border: 1px solid #ccc;
+      height: auto;
+    }
+  </style>
+</head>
+<body>
+  <h1>Code Editor</h1>
+  <textarea id="code" name="code">
+    # Write your Python code here
+    print("Hello, world!")
+  </textarea>
+
+  <button onclick="runCode()">Run Code</button>
+
+  <h2>Output:</h2>
+  <pre id="output"></pre>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/codemirror.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/mode/python/python.min.js"></script>
+  <script>
+    // Initialize CodeMirror editor
+    var editor = CodeMirror.fromTextArea(document.getElementById('code'), {
+      mode: 'python',
+      lineNumbers: true
+    });
+
+    function runCode() {
+      var code = editor.getValue();
+      var outputElement = document.getElementById('output');
+
+      // Run Python code using Skulpt (client-side Python interpreter)
+      Sk.configure({ output: function(text) { outputElement.innerText += text + '\n'; } });
+      Sk.misceval.asyncToPromise(function() {
+        return Sk.importMainWithBody("<stdin>", false, code, true);
+      }).catch(function(err) {
+        outputElement.innerText = err.toString();
+      });
+    }
+
+    // Include Skulpt (Python in browser)
+    var skulptScript = document.createElement('script');
+    skulptScript.src = 'https://cdn.jsdelivr.net/npm/skulpt@1.1.0/dist/skulpt.min.js';
+    document.head.appendChild(skulptScript);
+  </script>
+</body>
+</html>
